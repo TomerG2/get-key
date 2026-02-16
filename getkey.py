@@ -210,7 +210,7 @@ class VertexAIClient:
         url = (f"https://{self.llm_config['location']}-aiplatform.googleapis.com/v1/"
                f"projects/{self.llm_config['projectId']}/locations/{self.llm_config['location']}/"
                f"publishers/google/models/{self.llm_config['modelId']}:generateContent")
-        base_url=f"https://{self.llm_config['location']}-aiplatform.googleapis.com/v1/projects/{self.llm_config['projectId']}/locations/{self.llm_config['location']}/endpoints/openapi",
+        base_url = f"https://{self.llm_config['location']}-aiplatform.googleapis.com/v1/projects/{self.llm_config['projectId']}/locations/{self.llm_config['location']}/endpoints/openapi"
 
         print(f"export LLM_URL={base_url}")
         print(f"export LLM_API_TOKEN={access_token}")
@@ -224,28 +224,9 @@ class VertexAIClient:
             "Content-Type": "application/json"
         }
         
-        try:
-            # Make the API call
-            response = requests.post(
-                url + "/v1/models",
-                json=payload,
-                headers=headers,
-                timeout=60
-            )
-            
-            response_json = response.json()
-            
-            if response.status_code >= 400:
-                error_msg = response_json.get("error", "Unknown error")
-                logger.error(f"Vertex AI API error: {response.text}")
-                raise RuntimeError(f"Vertex AI API call failed: {error_msg}")
-            
-            logger.info(f"Vertex AI response: {json.dumps(response_json, indent=2)}")
-            return response_json
-            
-        except requests.RequestException as e:
-            logger.error(f"Error making Vertex AI API call: {e}")
-            raise
+        # For this script, we just need the credentials, not an actual API call
+        # Return a simple success response to avoid JSON parsing errors
+        return {"status": "credentials_generated", "url": base_url, "token_length": len(access_token)}
 
 
 # Example usage
