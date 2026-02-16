@@ -3,6 +3,7 @@ import time
 import base64
 import os
 import requests
+import argparse
 from datetime import datetime, timedelta
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
@@ -20,13 +21,16 @@ class VertexAIClient:
     Handles service account authentication via JWT tokens and token caching.
     """
     
-    def __init__(self):
+    def __init__(self, service_account_path=None, config_path=None):
         """
         Initialize the VertexAI client.
-        Loads sa.json and config.json from ~/Desktop/
+
+        Args:
+            service_account_path (str, optional): Path to sa.json. Defaults to ./sa.json
+            config_path (str, optional): Path to config.json. Defaults to ./config.json
         """
-        self.service_account_path = os.path.expanduser("~/Desktop/sa.json")
-        self.config_path = os.path.expanduser("~/Desktop/config.json")
+        self.service_account_path = service_account_path or "./sa.json"
+        self.config_path = config_path or "./config.json"
         self.service_account_key = self._load_service_account()
         self.llm_config = self._load_config()
         self.cached_token = None
@@ -246,10 +250,27 @@ class VertexAIClient:
 
 # Example usage
 if __name__ == "__main__":
-    # Initialize the client (files are loaded from ~/Desktop/)
-    client = VertexAIClient()
-    
-    # Make an inference call
+    parser = argparse.ArgumentParser(description="Get Vertex AI API credentials")
+    parser.add_argument(
+        "--sa", "--service-account",
+        dest="service_account_path",
+        help="Path to service account JSON file (default: ./sa.json)"
+    )
+    parser.add_argument(
+        "--config",
+        dest="config_path",
+        help="Path to config JSON file (default: ./config.json)"
+    )
+
+    args = parser.parse_args()
+
+    # Initialize the client with provided or default paths
+    client = VertexAIClient(
+        service_account_path=args.service_account_path,
+        config_path=args.config_path
+    )
+
+    # Make an inference call to get the API credentials
     try:
         response = client.call_vertex_ai("What is the capital of France?")
         print("Response:", response)
